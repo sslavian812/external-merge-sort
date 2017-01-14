@@ -1,11 +1,11 @@
-package com.shslamov.extsort;
+package com.shalamov.extsort;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 
-import static com.shslamov.extsort.Utils.toByteArray;
-import static com.shslamov.extsort.Utils.toIntArray;
+import static com.shalamov.extsort.Utils.toByteArray;
+import static com.shalamov.extsort.Utils.toIntArray;
 
 
 /**

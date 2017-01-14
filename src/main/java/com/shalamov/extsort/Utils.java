@@ -1,11 +1,9 @@
-package com.shslamov.extsort;
+package com.shalamov.extsort;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Random;
-
-import static com.shslamov.extsort.ExternalInt32Sort.BLOCK_SIZE;
 
 /**
  * Created by viacheslav on 2017-01-14.
