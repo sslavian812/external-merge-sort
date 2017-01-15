@@ -113,4 +113,19 @@ public class Utils {
     }
 
 
+    public static void generateRandomFile(String fileName, int blocks) {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+            byte[] buffer = new byte[ExternalInt32Sort.BLOCK_SIZE];
+            Random r = new Random();
+            for (int i = 0; i < blocks; i++) {
+                r.nextBytes(buffer);
+                fileOutputStream.write(buffer);
+            }
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

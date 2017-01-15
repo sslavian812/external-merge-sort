@@ -1,8 +1,8 @@
 package com.shalamov.extsort;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
-import java.util.Random;
 
 import static com.shalamov.extsort.Utils.toByteArray;
 import static com.shalamov.extsort.Utils.toIntArray;
@@ -15,78 +15,116 @@ import static com.shalamov.extsort.Utils.toIntArray;
  */
 public class ExternalInt32Sort {
 
-    public static final int BLOCK_SIZE = 4 * 1024;
-    public static final int GENERATE_BLOCKS = 1;
+    public static final int BLOCK_SIZE = 4 * 16;
+    public static final double GENERATE_BLOCKS = 8;
 
     public static void main(String[] args) {
         String mode = args[0];
         String fileName = args[1];
 
 
-        if(mode.equals("-gr")){
-            generateRandomFile(fileName, GENERATE_BLOCKS);
-        } else if(mode.equals("-gb")){
+        if (mode.equals("-gr")) {
+            Utils.generateRandomFile(fileName, (int) GENERATE_BLOCKS);
+        } else if (mode.equals("-gb")) {
             Utils.writeIncreasingBytes(fileName);
-        } else if(mode.equals("-gint")){
-            Utils.generateInts(fileName, BLOCK_SIZE/4);
-        } else if(mode.equals("-gintsh")){
-            Utils.generateShuffledInts(fileName, BLOCK_SIZE/4);
-        } else if(mode.equals("-s")){
-            internalBlocksSort(fileName);
-        } else if(mode.equals("-t")){
-            return;
+        } else if (mode.equals("-gint")) {
+            Utils.generateInts(fileName, (int) (BLOCK_SIZE / 4 * GENERATE_BLOCKS));
+        } else if (mode.equals("-gintsh")) {
+            Utils.generateShuffledInts(fileName, (int) (BLOCK_SIZE / 4 * GENERATE_BLOCKS));
+        } else if (mode.equals("-s")) {
+            int totalBytes = internalBlocksSort(fileName);
+            int totalInts = totalBytes / 4;
+
+            int size = totalBytes / BLOCK_SIZE;
+            String inFile = fileName + ".tmp";
+            String outFile = fileName + ".tmp.dest";
+
+            while (size * 2 <= totalBytes) {
+                externalMergeSort(inFile, outFile, size, totalBytes);
+                renameFile(outFile, inFile);
+                size *= 2;
+            }
+
+
+            // TODO carefully merge the last part of file.
         }
     }
 
-    private static void generateRandomFile(String fileName, int blocks) {
+    private static void renameFile(String currentName, String newName) {
+        File file = new File(currentName);
+        File nFile = new File(newName);
+        if (!file.renameTo(nFile)) {
+            throw new IllegalStateException("Unable to rename file");
+        }
+    }
+
+
+    /**
+     * This method merges all subsequent pairs of blocks of size {@code size} from {@code srcFile}
+     * into blocks of size {@code 2*size} and writes down to {@code dstFile}
+     *
+     * @param srcFile
+     * @param dstFile
+     * @param size
+     */
+    private static void externalMergeSort(String srcFile, String dstFile, int size, int maxFileSize) {
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-            byte[] buffer = new byte[BLOCK_SIZE];
-            Random r = new Random();
-            for (int i = 0; i < blocks; i++) {
-                r.nextBytes(buffer);
-                fileOutputStream.write(buffer);
-            }
+            FileInputStream fileInputStream = new FileInputStream(srcFile);
+            FileOutputStream fileOutputStream = new FileOutputStream(dstFile);
+
+            FileChannel channelA = fileInputStream.getChannel();
+            FileChannel channelB = fileInputStream.getChannel();
+
+
+//            TODO: read and merge
+//            byte[] buffer = new byte[BLOCK_SIZE];
+//            int read;
+//            while ((read = fileInputStream.read(buffer)) != -1) {
+//                int[] ints = toIntArray(buffer, read / 4);
+//                Arrays.sort(ints);
+//                byte[] sorted = toByteArray(ints);
+//                fileOutputStream.write(sorted);
+//            }
+
+
             fileOutputStream.flush();
-            fileOutputStream.close();
+            fileInputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
-    private static void internalBlocksSort(String fileName) {
+    private static int internalBlocksSort(String fileName) {
         try {
             FileInputStream fileInputStream = new FileInputStream(fileName);
             FileOutputStream fileOutputStream = new FileOutputStream(fileName + ".tmp");
             byte[] buffer = new byte[BLOCK_SIZE];
 
+            int acc = 0;
 
-
-            int offset = 0;
             int read;
-            while ((read = fileInputStream.read(buffer, offset, BLOCK_SIZE)) != -1) {
-                if(read %4 != 0) {
-                    System.err.println("Fucked up! read " + read + "bytes");
+            while ((read = fileInputStream.read(buffer)) != -1) {
+                acc += read;
+                if (read % 4 != 0) {
+                    throw new IllegalStateException("Fucked up! read " + read + "bytes");
                 }
 
                 int[] ints = toIntArray(buffer, read / 4);
                 Arrays.sort(ints);
                 byte[] sorted = toByteArray(ints);
-//
-//                Arrays.sort(buffer);
-//                byte[] sorted = buffer;
 
-                if(sorted.length != read) {
-                    System.err.println("Fucked up! read-write size does not match!: " + read + " vs " + sorted.length);
+                if (sorted.length != read) {
+                    throw new IllegalStateException("Fucked up! read-write size does not match!: " + read + " vs " + sorted.length);
                 }
                 fileOutputStream.write(sorted);
             }
+            fileOutputStream.flush();
+            fileInputStream.close();
+            return acc;
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
     }
-
 }
