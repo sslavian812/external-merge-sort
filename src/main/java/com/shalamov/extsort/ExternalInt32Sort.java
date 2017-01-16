@@ -37,12 +37,32 @@ public class ExternalInt32Sort {
         } else if (mode.equals("-s")) {
             Sort sort = new Sort();
             try {
+                System.gc();
                 sort.sort(new File(file), new File(file + ".sorted"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if(mode.equals("-t")){
+            // test mode:
+            Sort sort = new Sort();
+            try {
+                System.out.println("4Mb warmup:");
+                String f = "file.4m.bin";
+                System.gc();
+                sort.sort(new File(f), new File(f + ".sorted"));
+                System.out.println("real tests:");
+                f = "file.40m.bin";
+                System.gc();
+                sort.sort(new File(f), new File(f + ".sorted"));
+                f = "file.400m.bin";
+                System.gc();
+                sort.sort(new File(f), new File(f + ".sorted"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
 
     private static boolean checkFileTobeSorted(File file) {
         try {

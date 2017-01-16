@@ -20,6 +20,7 @@ public class Sort {
      * @throws IOException
      */
     public void sort(File input, File output) throws IOException {
+        System.out.println("Start sorting: " + input.getName() + " -> " + output.getName());
         long start = System.currentTimeMillis();
         List<File> list = splitToSortedParts(input);
         mergeKWay(list, output);
