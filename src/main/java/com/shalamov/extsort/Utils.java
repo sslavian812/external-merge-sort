@@ -3,6 +3,7 @@ package com.shalamov.extsort;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -44,6 +45,28 @@ public class Utils {
             bytes[j++] = (byte) (t >> 8);
             bytes[j++] = (byte) t;
         }
+        return bytes;
+    }
+
+    public static byte[] toByteArray(List<Integer> ints) {
+        byte[] bytes = new byte[ints.size()*4];
+        int j = 0;
+        for (int t : ints) {
+            bytes[j++] = (byte) (t >> 24);
+            bytes[j++] = (byte) (t >> 16);
+            bytes[j++] = (byte) (t >> 8);
+            bytes[j++] = (byte) t;
+        }
+        return bytes;
+    }
+
+    public static byte[] toBytes(int t){
+        byte[] bytes = new byte[4];
+        short j=0;
+        bytes[j++] = (byte) (t >> 24);
+        bytes[j++] = (byte) (t >> 16);
+        bytes[j++] = (byte) (t >> 8);
+        bytes[j] = (byte) t;
         return bytes;
     }
 
@@ -128,4 +151,5 @@ public class Utils {
             e.printStackTrace();
         }
     }
+
 }
