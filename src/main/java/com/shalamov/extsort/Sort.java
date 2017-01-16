@@ -20,8 +20,10 @@ public class Sort {
      * @throws IOException
      */
     public void sort(File input, File output) throws IOException {
+        long start = System.currentTimeMillis();
         List<File> list = splitToSortedParts(input);
         mergeKWay(list, output);
+        System.out.println((System.currentTimeMillis()-start) /1000 + "s" );
     }
 
     /**

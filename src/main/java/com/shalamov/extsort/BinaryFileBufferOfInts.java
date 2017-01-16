@@ -17,7 +17,7 @@ import java.util.List;
 public class BinaryFileBufferOfInts implements Closeable {
 
     private static int BUFFER_SIZE = 4 * 1024;
-    private BufferedReader bufferedReader;
+    private FileInputStream inputStream;
     private File originalFile;
     private Integer cache = null;
 
@@ -26,7 +26,8 @@ public class BinaryFileBufferOfInts implements Closeable {
 
     public BinaryFileBufferOfInts(File file) throws IOException {
         originalFile = file;
-        bufferedReader = new BufferedReader(new FileReader(file), BUFFER_SIZE);
+        inputStream = new FileInputStream(file);
+        availableInts = 0; // no cache, no byteBuffer;
         refresh();
     }
 
@@ -65,7 +66,7 @@ public class BinaryFileBufferOfInts implements Closeable {
      * this method invalidates cache and byteBuffer.
      */
     private void refresh() throws IOException {
-        if (availableInts != 0) {
+        if (availableInts > 1) {
             cache = byteBuffer.getInt();
             --availableInts;
             return;
@@ -77,7 +78,7 @@ public class BinaryFileBufferOfInts implements Closeable {
 
         // read something:
         byte[] bytes = new byte[BUFFER_SIZE];
-        int read = -1; // bufferedReader.read; // TODO read these bytes
+        int read = inputStream.read(bytes); // TODO read these bytes
         if (read > 0) {
             // update cache and buffer:
             byteBuffer = ByteBuffer.wrap(bytes);
@@ -109,6 +110,6 @@ public class BinaryFileBufferOfInts implements Closeable {
     }
 
     public void close() throws IOException {
-        bufferedReader.close();
+        inputStream.close();
     }
 }

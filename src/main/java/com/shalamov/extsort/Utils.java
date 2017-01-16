@@ -3,6 +3,8 @@ package com.shalamov.extsort;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -11,6 +13,8 @@ import java.util.Random;
  */
 public class Utils {
 
+
+    private static final int BLOCK_SIZE = 4 * 1024*1024;
 
     /**
      * Returns <code>intsNum</code> integers in an array.
@@ -37,7 +41,7 @@ public class Utils {
 
 
     public static byte[] toByteArray(int[] ints) {
-        byte[] bytes = new byte[ints.length*4];
+        byte[] bytes = new byte[ints.length * 4];
         int j = 0;
         for (int t : ints) {
             bytes[j++] = (byte) (t >> 24);
@@ -49,7 +53,7 @@ public class Utils {
     }
 
     public static byte[] toByteArray(List<Integer> ints) {
-        byte[] bytes = new byte[ints.size()*4];
+        byte[] bytes = new byte[ints.size() * 4];
         int j = 0;
         for (int t : ints) {
             bytes[j++] = (byte) (t >> 24);
@@ -60,9 +64,9 @@ public class Utils {
         return bytes;
     }
 
-    public static byte[] toBytes(int t){
+    public static byte[] toBytes(int t) {
         byte[] bytes = new byte[4];
-        short j=0;
+        short j = 0;
         bytes[j++] = (byte) (t >> 24);
         bytes[j++] = (byte) (t >> 16);
         bytes[j++] = (byte) (t >> 8);
@@ -74,8 +78,8 @@ public class Utils {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(fileName);
             byte[] buffer = new byte[256];
-            for (byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE ; i++) {
-                buffer[(i-Byte.MIN_VALUE)] = i;
+            for (byte i = Byte.MIN_VALUE; i < Byte.MAX_VALUE; i++) {
+                buffer[(i - Byte.MIN_VALUE)] = i;
             }
             buffer[255] = Byte.MAX_VALUE;
 
@@ -87,11 +91,11 @@ public class Utils {
         }
     }
 
-    public static int[] shuffle(int[] ints){
+    public static int[] shuffle(int[] ints) {
         Random r = new Random();
         int t;
         for (int i = 0; i < ints.length; i++) {
-            int j =(int) (Math.random()* (double)ints.length);
+            int j = (int) (Math.random() * (double) ints.length);
             t = ints[i];
             ints[i] = ints[j];
             ints[j] = t;
@@ -105,7 +109,7 @@ public class Utils {
 
             int[] ints = new int[intsNum];
             for (int i = 0; i < intsNum; i++) {
-                ints[i]=i;
+                ints[i] = i;
             }
             byte[] buffer = toByteArray(ints);
 
@@ -117,17 +121,21 @@ public class Utils {
         }
     }
 
-    public static void generateShuffledInts(String fileName, int intsNum) {
+    public static void generateShuffledInts(String fileName, long intsNum) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-            int[] ints = new int[intsNum];
-            for (int i = 0; i < intsNum; i++) {
-                ints[i]=i;
+                List<Integer> integers = new ArrayList<>();
+            while (intsNum > 0) {
+                int[] ints = new int[BLOCK_SIZE / 4];
+                for (int i = 0; i < BLOCK_SIZE / 4; i++) {
+                    ints[i] = i;
+                }
+                shuffle(ints);
+                byte[] buffer = toByteArray(ints);
+                fileOutputStream.write(buffer);
+                intsNum -= BLOCK_SIZE / 4;
             }
-            shuffle(ints);
-            byte[] buffer = toByteArray(ints);
 
-            fileOutputStream.write(buffer);
             fileOutputStream.flush();
             fileOutputStream.close();
         } catch (IOException e) {
@@ -136,10 +144,10 @@ public class Utils {
     }
 
 
-    public static void generateRandomFile(String fileName, int blocks) {
+    public static void generateRandomFile(String fileName, int blockSize, int blocks) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-            byte[] buffer = new byte[ExternalInt32Sort.BLOCK_SIZE];
+            byte[] buffer = new byte[blockSize];
             Random r = new Random();
             for (int i = 0; i < blocks; i++) {
                 r.nextBytes(buffer);
