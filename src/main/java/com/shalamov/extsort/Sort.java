@@ -62,7 +62,6 @@ public class Sort {
                     if (sortedFiles.size() > TEMP_FILES_LIMIT) {
                         File mergedFile = merge(sortedFiles);
                         sortedFiles = Arrays.asList(mergedFile);
-
                     }
                     inputFiles.add(internalSortAndSaveToFile(elements));
                     sortedFiles.add(merge(inputFiles));

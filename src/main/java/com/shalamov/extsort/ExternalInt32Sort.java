@@ -21,6 +21,7 @@ public class ExternalInt32Sort {
     private static int BLOCK_SIZE = 4*1024;
 
     public static void main(String[] args) {
+
         String mode = args[0];
         String file = args[1];
 
@@ -31,7 +32,7 @@ public class ExternalInt32Sort {
             Utils.generateRandomFile(file, BLOCK_SIZE, Integer.parseInt(numberOfInts));
         } else if (mode.equals("-c")) {
             // check file to be sorted
-            System.out.println(checkFileTobeSorted(file) ? "OK" : "FAILURE!");
+            System.out.println(checkFileTobeSorted(new File(file)) ? "OK" : "FAILURE!");
 
         } else if (mode.equals("-s")) {
             Sort sort = new Sort();
@@ -40,12 +41,27 @@ public class ExternalInt32Sort {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
-    private static boolean checkFileTobeSorted(String file) {
-        return true;
+    private static boolean checkFileTobeSorted(File file) {
+        try {
+            BinaryFileBufferOfInts bufferOfInts = new BinaryFileBufferOfInts(file);
+            int prev = Integer.MIN_VALUE;
+            int cur;
+
+            while (!bufferOfInts.isEmpty()) {
+                cur = bufferOfInts.pop();
+                if (prev > cur) {
+                    return false;
+                }
+                prev = cur;
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private static void renameFile(String currentName, String newName) {

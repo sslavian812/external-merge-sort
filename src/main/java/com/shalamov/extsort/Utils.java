@@ -121,27 +121,6 @@ public class Utils {
         }
     }
 
-    public static void generateShuffledInts(String fileName, long intsNum) {
-        try {
-            FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-                List<Integer> integers = new ArrayList<>();
-            while (intsNum > 0) {
-                int[] ints = new int[BLOCK_SIZE / 4];
-                for (int i = 0; i < BLOCK_SIZE / 4; i++) {
-                    ints[i] = i;
-                }
-                shuffle(ints);
-                byte[] buffer = toByteArray(ints);
-                fileOutputStream.write(buffer);
-                intsNum -= BLOCK_SIZE / 4;
-            }
-
-            fileOutputStream.flush();
-            fileOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     public static void generateRandomFile(String fileName, int blockSize, int blocks) {
