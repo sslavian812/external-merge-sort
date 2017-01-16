@@ -16,9 +16,9 @@ import java.util.List;
  */
 public class BinaryFileBufferOfInts implements Closeable {
 
-    private static int BUFFERSIZE = 4 * 1024;
+    private static int BUFFER_SIZE = 4 * 1024;
     private BufferedReader bufferedReader;
-    File originalFile;
+    private File originalFile;
     private Integer cache = null;
 
     private ByteBuffer byteBuffer = null;
@@ -26,7 +26,7 @@ public class BinaryFileBufferOfInts implements Closeable {
 
     public BinaryFileBufferOfInts(File file) throws IOException {
         originalFile = file;
-        bufferedReader = new BufferedReader(new FileReader(file), BUFFERSIZE);
+        bufferedReader = new BufferedReader(new FileReader(file), BUFFER_SIZE);
         refresh();
     }
 
@@ -76,7 +76,7 @@ public class BinaryFileBufferOfInts implements Closeable {
         cache = null;
 
         // read something:
-        byte[] bytes = new byte[BUFFERSIZE];
+        byte[] bytes = new byte[BUFFER_SIZE];
         int read = -1; // bufferedReader.read; // TODO read these bytes
         if (read > 0) {
             // update cache and buffer:
@@ -103,8 +103,8 @@ public class BinaryFileBufferOfInts implements Closeable {
         return integers;
     }
 
-
     public void clear() throws IOException {
+        close();
         originalFile.deleteOnExit();
     }
 
