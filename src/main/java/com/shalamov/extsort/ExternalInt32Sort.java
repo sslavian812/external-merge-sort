@@ -17,7 +17,6 @@ import static com.shalamov.extsort.Utils.toIntArray;
  */
 public class ExternalInt32Sort {
 
-
     private static int BLOCK_SIZE = 4*1024;
 
     public static void main(String[] args) {
@@ -33,7 +32,6 @@ public class ExternalInt32Sort {
         } else if (mode.equals("-c")) {
             // check file to be sorted
             System.out.println(checkFileTobeSorted(new File(file)) ? "OK" : "FAILURE!");
-
         } else if (mode.equals("-s")) {
             Sort sort = new Sort();
             try {
@@ -42,23 +40,42 @@ public class ExternalInt32Sort {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else if(mode.equals("-t")){
+        } else if(mode.equals("-t")) {
             // test mode:
-            Sort sort = new Sort();
-            try {
-                System.out.println("4Mb warmup:");
-                String f = "file.4m.bin";
-                System.gc();
-                sort.sort(new File(f), new File(f + ".sorted"));
-                System.out.println("real tests:");
-                f = "file.40m.bin";
-                System.gc();
-                sort.sort(new File(f), new File(f + ".sorted"));
-                f = "file.400m.bin";
-                System.gc();
-                sort.sort(new File(f), new File(f + ".sorted"));
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (int i = 4; i >= 1; i /= 4) {
+
+                Sort sort = new Sort(i * 4 * 1024);
+                try {
+//                File tmpFile = File.createTempFile("prefix", "suffix");
+//                System.getProperty("java.io.tmpdir");
+//                File tmpFileSameName = File.createTempFile("prefix", "suffix");
+//                System.out.println(tmpFile.getAbsolutePath());
+//                System.out.println(tmpFileSameName.getAbsolutePath());
+//                tmpFile.deleteOnExit();
+//                tmpFileSameName.deleteOnExit();
+
+                    System.out.println();
+                    System.out.println("BLOCK_SIZE: " + sort.getBlockSize() + ", INTS (K): " + sort.getBlockSize()/4/1024);
+                    System.out.println("4Mb warmup:");
+                    String f = "file.4m.bin";
+                    System.gc();
+                    sort.sort(new File(f), new File(f + ".sorted"));
+
+
+                    System.out.println("real tests:");
+                    f = "file.4m.bin";
+                    System.gc();
+                    sort.sort(new File(f), new File(f + ".sorted"));
+                    f = "file.40m.bin";
+                    System.gc();
+                    sort.sort(new File(f), new File(f + ".sorted"));
+                    f = "file.400m.bin";
+                    System.gc();
+                    sort.sort(new File(f), new File(f + ".sorted"));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

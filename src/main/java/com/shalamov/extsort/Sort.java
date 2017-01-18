@@ -10,6 +10,24 @@ public class Sort {
     private static final int TEMP_FILES_LIMIT = 1024;
     private static final long DEFAULT_BLOCK_SIZE = 4 * 1024;
 
+    private long blockSize;
+
+
+    public Sort(long blockSize) {
+        this.blockSize = blockSize;
+    }
+
+    public Sort() {
+        blockSize = DEFAULT_BLOCK_SIZE;
+    }
+
+    public long getBlockSize() {
+        return blockSize;
+    }
+
+    public void setBlockSize(long blockSize) {
+        this.blockSize = blockSize;
+    }
 
     /**
      * Sorts the content of proveded {@code input} file and stores sorted data to {@code output} file.
@@ -41,11 +59,11 @@ public class Sort {
      */
     private List<File> splitToSortedParts(File file) throws IOException {
 
-        List<File> inputFiles = new ArrayList<>();
-
+        /** Usually small files, which are read from disc as is.*/
         List<File> sortedFiles = new ArrayList<>();
 
-        long blockSize = DEFAULT_BLOCK_SIZE;
+        /** Usually, at least 2 times bigger than files in {@code sortedFiles}. There are merge results.*/
+        List<File> mergedFiles = new ArrayList<>();
 
 
         try (BinaryFileBufferOfInts fbr = new BinaryFileBufferOfInts(file)) {
@@ -59,31 +77,30 @@ public class Sort {
                     currentBlockSize += 4;
                 }
 
-                if (inputFiles.size() > TEMP_FILES_LIMIT) {
-                    if (sortedFiles.size() > TEMP_FILES_LIMIT) {
-                        File mergedFile = merge(sortedFiles);
-                        sortedFiles = Arrays.asList(mergedFile);
+                if (sortedFiles.size() > TEMP_FILES_LIMIT) {
+                    if (mergedFiles.size() > TEMP_FILES_LIMIT) {
+                        File mergedFile = merge(mergedFiles);
+                        mergedFiles = Arrays.asList(mergedFile);
                     }
-                    inputFiles.add(internalSortAndSaveToFile(elements));
-                    sortedFiles.add(merge(inputFiles));
-                    inputFiles.clear();
+                    sortedFiles.add(internalSortAndSaveToFile(elements));
+                    mergedFiles.add(merge(sortedFiles));
+                    sortedFiles.clear();
                 } else {
                     // sort read block (a set of strings), save to file
                     // and add link to this file to input files set.
-                    inputFiles.add(internalSortAndSaveToFile(elements));
+                    sortedFiles.add(internalSortAndSaveToFile(elements));
                 }
                 elements.clear();
             }
 
             if (elements.size() > 0) {
-                inputFiles.add(internalSortAndSaveToFile(elements));
+                sortedFiles.add(internalSortAndSaveToFile(elements));
                 elements.clear();
             }
-
         }
 
-        inputFiles.addAll(sortedFiles);
-        return inputFiles;
+        sortedFiles.addAll(mergedFiles);
+        return sortedFiles;
     }
 
 
@@ -94,7 +111,7 @@ public class Sort {
      * @throws IOException
      */
     private File merge(List<File> files) throws IOException {
-        File comdinedFile = File.createTempFile("mergeTmp", "flatfile");
+        File comdinedFile = File.createTempFile("externalMergeTemp", ".bin");
         comdinedFile.deleteOnExit();
         mergeKWay(files, comdinedFile);
         return comdinedFile;
@@ -112,7 +129,7 @@ public class Sort {
      */
     private File internalSortAndSaveToFile(List<Integer> unsortedList) throws IOException {
 
-        File file = File.createTempFile("sortTmp", "flatfile");
+        File file = File.createTempFile("internalSortTmp", ".bin");
         file.deleteOnExit();
 
         FileOutputStream fileOutputStream = new FileOutputStream(file);

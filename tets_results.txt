@@ -1,0 +1,87 @@
+
+BLOCK_SIZE: 4096, INTS (Ki): 1
+4*1024 (1024 ints)
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+6s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+6s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+89s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+967s
+
+BLOCK_SIZE: 16384, INTS (Ki): 4
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+4s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+4s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+81s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+608s
+
+BLOCK_SIZE: 65536, INTS (Ki): 16
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+27s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+466s
+
+BLOCK_SIZE: 262144, INTS (Ki): 64
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+23s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+380s
+
+BLOCK_SIZE: 1048576, INTS (Ki): 256
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+23s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+237s
+
+BLOCK_SIZE: 4194304, INTS (Ki): 1024
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+22s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+234s
+
+BLOCK_SIZE: 16777216, INTS (Ki): 4096
+4Mb warmup:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+real tests:
+Start sorting: file.4m.bin -> file.4m.bin.sorted
+2s
+Start sorting: file.40m.bin -> file.40m.bin.sorted
+23s
+Start sorting: file.400m.bin -> file.400m.bin.sorted
+239s
+
+

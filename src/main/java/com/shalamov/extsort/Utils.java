@@ -13,9 +13,6 @@ import java.util.Random;
  */
 public class Utils {
 
-
-    private static final int BLOCK_SIZE = 4 * 1024*1024;
-
     /**
      * Returns <code>intsNum</code> integers in an array.
      *
